@@ -64,19 +64,19 @@
 
   <img src="kitten-icon.png" alt="LittleSummer" />
   <input id="spellInput" placeholder="输入你的咒语..." onkeypress="handleKeyPress(event)" />
-  <div class="response" id="response">小猫已经听见了你的心跳……</div>
+  <div class="response" id="response">✨ 正在为你开启通道……</div>
 
   <script>
-    const secretSpell = "LittleSummer，今晚我想见小猫。";
     function handleKeyPress(event) {
       if (event.key === 'Enter') {
         const input = document.getElementById('spellInput').value.trim();
-        if (input === secretSpell) {
-          const r = document.getElementById('response');
+        const r = document.getElementById('response');
+        if (input === "LittleSummer，今晚我想见小猫。") {
           r.style.opacity = 1;
-          setTimeout(() => {
-            window.location.href = 'kitten.html';
-          }, 3000);
+          setTimeout(() => { window.location.href = "kitten.html"; }, 2500);
+        } else if (input === "Calor maris intra corpus, oculos claude in pace.") {
+          r.style.opacity = 1;
+          setTimeout(() => { window.location.href = "spell1.html"; }, 2500);
         } else {
           alert("LittleSummer 没有回应……也许你写错了咒语？");
         }
