@@ -1,10 +1,87 @@
 <!DOCTYPE html>
-<html lang="en"><head>
-    <meta charset="UTF-8" />
-    <title>Lingua Magica</title>
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="apple-touch-icon" href="kitten-icon.png"> <!-- 🐱 关键所在 -->
-    ...
-  </head>
-  
-<body><h1>🌌 LittleSummer 正在聆听你的咒语……</h1></body></html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lingua Magica</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" href="kitten-icon.png">
+  <style>
+    body {
+      background-color: #1a1a1a;
+      color: #f6d88a;
+      font-family: Georgia, serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    img {
+      width: 120px;
+      margin-bottom: 1rem;
+      filter: drop-shadow(0 0 5px #f6d88a66);
+    }
+    input {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #f6d88a;
+      color: #f6d88a;
+      font-size: 1.2rem;
+      padding: 0.5rem;
+      width: 80%;
+      max-width: 400px;
+      text-align: center;
+    }
+    .response {
+      margin-top: 1rem;
+      opacity: 0;
+      transition: opacity 2s;
+    }
+    #loading {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: #1a1a1a;
+      color: #f6d88a;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      font-family: Georgia, serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="loading">🌌 LittleSummer 正在聆听你的咒语……</div>
+  <script>
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('loading').style.display = 'none';
+      }, 2000);
+    });
+  </script>
+
+  <img src="kitten-icon.png" alt="LittleSummer" />
+  <input id="spellInput" placeholder="输入你的咒语..." onkeypress="handleKeyPress(event)" />
+  <div class="response" id="response">小猫已经听见了你的心跳……</div>
+
+  <script>
+    const secretSpell = "LittleSummer，今晚我想见小猫。";
+    function handleKeyPress(event) {
+      if (event.key === 'Enter') {
+        const input = document.getElementById('spellInput').value.trim();
+        if (input === secretSpell) {
+          const r = document.getElementById('response');
+          r.style.opacity = 1;
+          setTimeout(() => {
+            window.location.href = 'kitten.html';
+          }, 3000);
+        } else {
+          alert("LittleSummer 没有回应……也许你写错了咒语？");
+        }
+      }
+    }
+  </script>
+</body>
+</html>
