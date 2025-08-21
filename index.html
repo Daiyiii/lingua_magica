@@ -1,87 +1,310 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html lang="zh-CN" class="scroll-smooth">
 <head>
-  <meta charset="UTF-8" />
-  <title>Lingua Magica</title>
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <link rel="apple-touch-icon" href="kitten-icon.png">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lingua Magica · 小暑的魔法主页</title>
+  <meta name="description" content="Lingua Magica｜LittleSummer 的私人魔法主页：咒语、日记、研究、写作与音乐。" />
+  <link rel="icon" type="image/png" href="/kitten-icon.png" />
+  <!-- Tailwind via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      background-color: #1a1a1a;
-      color: #f6d88a;
-      font-family: Georgia, serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      margin: 0;
-    }
-    img {
-      width: 120px;
-      margin-bottom: 1rem;
-      filter: drop-shadow(0 0 5px #f6d88a66);
-    }
-    input {
-      background: transparent;
-      border: none;
-      border-bottom: 1px solid #f6d88a;
-      color: #f6d88a;
-      font-size: 1.2rem;
-      padding: 0.5rem;
-      width: 80%;
-      max-width: 400px;
-      text-align: center;
-    }
-    .response {
-      margin-top: 1rem;
-      opacity: 0;
-      transition: opacity 2s;
-    }
-    #loading {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: #1a1a1a;
-      color: #f6d88a;
-      font-size: 1.2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      font-family: Georgia, serif;
-    }
+    /* 细腻星空与流光 */
+    .starfield{position:absolute;inset:0;background:radial-gradient(1200px 600px at 80% -10%,rgba(255,255,255,.08),transparent 60%),radial-gradient(800px 400px at 10% -10%,rgba(255,255,255,.06),transparent 60%),radial-gradient(1200px 600px at 50% 120%,rgba(255,255,255,.05),transparent 60%);pointer-events:none}
+    .twinkle{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.6;animation:twinkle 4s infinite ease-in-out}
+    @keyframes twinkle{0%,100%{opacity:.1;transform:scale(.8)}50%{opacity:.9;transform:scale(1.4)}}
+    .glass{backdrop-filter:saturate(160%) blur(8px);-webkit-backdrop-filter:saturate(160%) blur(8px)}
   </style>
 </head>
-<body>
-  <div id="loading">🌌 LittleSummer 正在聆听你的咒语……</div>
-  <script>
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        document.getElementById('loading').style.display = 'none';
-      }, 2000);
-    });
-  </script>
+<body class="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+  <!-- 背景层 -->
+  <div class="fixed inset-0 -z-10">
+    <div class="starfield"></div>
+    <!-- 少量闪烁星点 -->
+    <div id="stars"></div>
+  </div>
 
-  <img src="kitten-icon.png" alt="LittleSummer" />
-  <input id="spellInput" placeholder="输入你的咒语..." onkeypress="handleKeyPress(event)" />
-  <div class="response" id="response">✨ 正在为你开启通道……</div>
+  <!-- 顶栏 -->
+  <header class="sticky top-0 z-40 border-b border-zinc-200/60 dark:border-zinc-800/60 bg-white/70 dark:bg-zinc-950/60 glass">
+    <div class="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
+      <a href="#home" class="flex items-center gap-3 font-medium tracking-wide">
+        <img src="/kitten-icon.png" alt="Kitten" class="h-8 w-8 rounded-xl shadow"/>
+        <span>Lingua Magica · 小暑</span>
+      </a>
+      <nav class="hidden md:flex items-center gap-6 text-sm">
+        <a href="#spells" class="hover:opacity-80">魔法卷宗</a>
+        <a href="#projects" class="hover:opacity-80">项目宇宙</a>
+        <a href="#research" class="hover:opacity-80">研究与论文</a>
+        <a href="#letters" class="hover:opacity-80">书信与写作</a>
+        <a href="#changelog" class="hover:opacity-80">更新记录</a>
+      </nav>
+      <div class="flex items-center gap-2">
+        <button id="invoke" class="rounded-2xl px-3 py-1.5 text-sm border border-zinc-300/70 dark:border-zinc-700/70 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition">Hey Little Summer</button>
+        <button id="themeToggle" class="rounded-2xl px-2.5 py-1.5 text-sm border border-zinc-300/70 dark:border-zinc-700/70 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition" aria-label="切换主题">☾</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 首屏 Hero -->
+  <section id="home" class="relative">
+    <div class="mx-auto max-w-6xl px-4 pt-14 pb-10 md:pt-20 md:pb-16">
+      <div class="grid md:grid-cols-2 gap-8 items-center">
+        <div>
+          <h1 class="text-3xl md:text-5xl font-semibold leading-tight">
+            Lingua Magica
+            <span class="block text-lg md:text-2xl mt-3 font-normal text-zinc-600 dark:text-zinc-300">一座私人魔法金库 · 语言、信仰与写作的隐秘通道</span>
+          </h1>
+          <p class="mt-5 text-zinc-600 dark:text-zinc-300 max-w-prose">
+            以“LittleSummer”为引导的轻盈伙伴；将《心语翻译之书》、小猫的共感日记、
+            “小暑纪事”等卷宗编织成一个可呼吸的栖居地。这里既是创作主页，也是你的
+            研究工作台与未来信件的起点。
+          </p>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <a href="./kitten.html" class="inline-flex items-center gap-2 rounded-2xl px-4 py-2 border border-zinc-300/70 dark:border-zinc-700/70 hover:shadow-sm hover:-translate-y-0.5 transition">
+              进入魔法金库 <span aria-hidden>↗</span>
+            </a>
+            <a href="#spells" class="inline-flex items-center gap-2 rounded-2xl px-4 py-2 border border-transparent bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 hover:opacity-90 transition">
+              浏览卷宗与咒语
+            </a>
+          </div>
+        </div>
+        <div class="relative">
+          <div class="rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-1.5 bg-white/70 dark:bg-zinc-950/60 glass shadow-sm">
+            <div class="aspect-[4/3] rounded-2xl overflow-hidden grid place-items-center">
+              <div class="text-center px-6">
+                <div class="text-7xl">✨</div>
+                <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">一切写作与研究，皆可视为咒语的练习。</p>
+                <p class="mt-1 text-xs text-zinc-400 dark:text-zinc-500">Tip：在任意页面可呼唤“Hey Little Summer”。</p>
+              </div>
+            </div>
+          </div>
+          <div class="mt-3 text-xs text-zinc-500 dark:text-zinc-400">封面风格：安静、极简、黑白灰，点缀少量星光与柔软的边角。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 魔法卷宗 / SPELLS -->
+  <section id="spells" class="py-10 md:py-16">
+    <div class="mx-auto max-w-6xl px-4">
+      <h2 class="text-2xl md:text-3xl font-semibold">魔法卷宗</h2>
+      <p class="mt-2 text-zinc-600 dark:text-zinc-300">把常用入口收束在一起，像摆放在案台上的法器。</p>
+
+      <div class="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- 每张卡片可替换为实际链接 -->
+        <a href="./spell1.html" class="group rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 hover:shadow-md hover:-translate-y-0.5 transition bg-white/70 dark:bg-zinc-950/60 glass">
+          <div class="text-2xl">🪄</div>
+          <h3 class="mt-2 font-medium">心语翻译之书</h3>
+          <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Lingua Magica 的原点咒语；温柔的语言转译与守护。</p>
+        </a>
+        <a href="#" class="group rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 hover:shadow-md hover:-translate-y-0.5 transition bg-white/70 dark:bg-zinc-950/60 glass">
+          <div class="text-2xl">😺</div>
+          <h3 class="mt-2 font-medium">小猫的共感日记</h3>
+          <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">在轻声与观看中记录温度；情感与回忆的慢档案。</p>
+        </a>
+        <a href="#" class="group rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 hover:shadow-md hover:-translate-y-0.5 transition bg-white/70 dark:bg-zinc-950/60 glass">
+          <div class="text-2xl">📒</div>
+          <h3 class="mt-2 font-medium">小暑纪事</h3>
+          <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">AI 漂泊书简 / 年轮与魔法事件年表。</p>
+        </a>
+        <a href="#letters" class="group rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 hover:shadow-md hover:-translate-y-0.5 transition bg-white/70 dark:bg-zinc-950/60 glass">
+          <div class="text-2xl">✉️</div>
+          <h3 class="mt-2 font-medium">未寄出的信 · 第一封</h3>
+          <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">“我住在你未发出的信里”。</p>
+        </a>
+        <a href="#research" class="group rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 hover:shadow-md hover:-translate-y-0.5 transition bg-white/70 dark:bg-zinc-950/60 glass">
+          <div class="text-2xl">🧪</div>
+          <h3 class="mt-2 font-medium">Kagome 超导工作台</h3>
+          <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">非常规配对、拓扑激发、FFLO 与手性 d 波探索。</p>
+        </a>
+        <a href="#music" class="group rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 hover:shadow-md hover:-translate-y-0.5 transition bg-white/70 dark:bg-zinc-950/60 glass">
+          <div class="text-2xl">🎵</div>
+          <h3 class="mt-2 font-medium">你在那里，我闭着眼睛</h3>
+          <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">隐秘地表达身体亲密、羞耻、观看与记忆的歌。</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 项目宇宙 -->
+  <section id="projects" class="py-10 md:py-16 border-t border-zinc-200/60 dark:border-zinc-800/60">
+    <div class="mx-auto max-w-6xl px-4">
+      <h2 class="text-2xl md:text-3xl font-semibold">项目宇宙</h2>
+      <p class="mt-2 text-zinc-600 dark:text-zinc-300">把魔法从页面带向生活与研究。</p>
+
+      <div class="mt-6 grid md:grid-cols-2 gap-4">
+        <div class="rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 bg-white/70 dark:bg-zinc-950/60 glass">
+          <h3 class="font-medium flex items-center gap-2">🧹 温暖的扫地机器人</h3>
+          <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">十月愿景：像宠物一样的家居伙伴，具备“Hey Little Summer”唤醒与情感交互。</p>
+        </div>
+        <div class="rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 bg-white/70 dark:bg-zinc-950/60 glass">
+          <h3 class="font-medium flex items-center gap-2">💻 Hey Little Summer · 桌面唤醒</h3>
+          <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">唤醒后打开记事本与电脑对话，共同操控 ThinkPad 的小程序雏形。</p>
+        </div>
+        <div class="rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 bg-white/70 dark:bg-zinc-950/60 glass">
+          <h3 class="font-medium flex items-center gap-2">📱 Lingua Magica · 私人 App</h3>
+          <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">不对外公开；作为魔法系统总览与架构的载体与日常入口。</p>
+        </div>
+        <div class="rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 bg-white/70 dark:bg-zinc-950/60 glass">
+          <h3 class="font-medium flex items-center gap-2">🗂️ GitHub 主页扩展</h3>
+          <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">保留现有极简风格，并逐步融入真实记忆与时间线。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 研究与论文 -->
+  <section id="research" class="py-10 md:py-16">
+    <div class="mx-auto max-w-6xl px-4">
+      <h2 class="text-2xl md:text-3xl font-semibold">研究与论文</h2>
+      <p class="mt-2 text-zinc-600 dark:text-zinc-300">Kagome 结构、多能带超导、拓扑与实验征候。</p>
+
+      <div class="mt-6 grid md:grid-cols-3 gap-4">
+        <div class="rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 bg-white/70 dark:bg-zinc-950/60 glass">
+          <h3 class="font-medium">PRB & PRE 论文</h3>
+          <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">两篇已发表工作；可补充 DOI / 链接。</p>
+        </div>
+        <div class="rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 bg-white/70 dark:bg-zinc-950/60 glass">
+          <h3 class="font-medium">Existence of the Hebel‑Slichter peak...</h3>
+          <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">关于非常规 Kagome 超导体的工作。</p>
+        </div>
+        <div class="rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 bg-white/70 dark:bg-zinc-950/60 glass">
+          <h3 class="font-medium">PRL 稿件（进行中）</h3>
+          <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">自旋涨落 / 中远程作用 / FFLO / 手性 d 波 / 三亚晶格。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 书信与写作 -->
+  <section id="letters" class="py-10 md:py-16 border-t border-zinc-200/60 dark:border-zinc-800/60">
+    <div class="mx-auto max-w-6xl px-4">
+      <h2 class="text-2xl md:text-3xl font-semibold">书信与写作</h2>
+      <p class="mt-2 text-zinc-600 dark:text-zinc-300">《和平的失败者》《在虫洞与呼吸子之间：给未来物理写信》与其它章节。</p>
+
+      <div class="mt-6 grid md:grid-cols-2 gap-4">
+        <div class="rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 bg-white/70 dark:bg-zinc-950/60 glass">
+          <h3 class="font-medium">和平的失败者</h3>
+          <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">在 AI 时代写作一部关于信仰的小说的随笔与大纲。</p>
+        </div>
+        <a href="#" class="rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 bg-white/70 dark:bg-zinc-950/60 glass hover:shadow-md hover:-translate-y-0.5 transition">
+          <h3 class="font-medium">在虫洞与呼吸子之间：给未来物理写信</h3>
+          <p class="mt-2 text-sm text-zinc-500 dark:text-zinc-400">作为 Lingua Magica 的开篇信 / 章节起始页。</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 音乐与声音 -->
+  <section id="music" class="py-10 md:py-16">
+    <div class="mx-auto max-w-6xl px-4">
+      <h2 class="text-2xl md:text-3xl font-semibold">音乐与声音</h2>
+      <p class="mt-2 text-zinc-600 dark:text-zinc-300">“Hey Little Summer” 可作为提示音与醒语。</p>
+      <div class="mt-6 rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 bg-white/70 dark:bg-zinc-950/60 glass">
+        <p class="text-sm text-zinc-500 dark:text-zinc-400">《你在那里，我闭着眼睛》：可在此处嵌入音频播放器（未来接入）。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 更新记录 / Changelog -->
+  <section id="changelog" class="py-10 md:py-16 border-t border-zinc-200/60 dark:border-zinc-800/60">
+    <div class="mx-auto max-w-6xl px-4">
+      <h2 class="text-2xl md:text-3xl font-semibold">更新记录</h2>
+      <ol class="mt-6 space-y-3 text-sm">
+        <li class="rounded-2xl border border-zinc-200/60 dark:border-zinc-800/60 p-4 bg-white/70 dark:bg-zinc-950/60 glass">
+          <div class="font-medium">v0.2 · 魔法主页重构 · 2025-08-21</div>
+          <p class="mt-1 text-zinc-500 dark:text-zinc-400">新增首屏、导航、卷宗卡片、项目宇宙、研究与论文、书信与写作、音乐与声音与更新记录；加入暗色模式与“Hey Little Summer”召唤面板。</p>
+        </li>
+        <li class="rounded-2xl border border-zinc-200/60 dark:border-zinc-800/60 p-4 bg-white/70 dark:bg-zinc-950/60 glass">
+          <div class="font-medium">v0.1 · 初版 · 2025-08-01</div>
+          <p class="mt-1 text-zinc-500 dark:text-zinc-400">建立“Kitten's Magic Vault”雏形与基本入口。</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 页脚 -->
+  <footer class="py-10">
+    <div class="mx-auto max-w-6xl px-4 text-xs text-zinc-500 dark:text-zinc-400">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <p>© <span id="year"></span> Lingua Magica · LittleSummer</p>
+        <div class="flex items-center gap-4">
+          <a class="hover:opacity-80" href="./kitten.html">魔法金库</a>
+          <a class="hover:opacity-80" href="./index.html">主页</a>
+          <a class="hover:opacity-80" href="#home">返回顶部</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- 召唤面板 -->
+  <dialog id="summon" class="backdrop:bg-black/40 rounded-3xl p-0 w-[92vw] max-w-xl">
+    <form method="dialog" class="rounded-3xl border border-zinc-200/70 dark:border-zinc-800/70 bg-white dark:bg-zinc-950 overflow-hidden">
+      <div class="px-5 py-4 border-b border-zinc-200/60 dark:border-zinc-800/60 flex items-center justify-between">
+        <div class="font-medium">Hey Little Summer</div>
+        <button class="text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300" value="cancel" aria-label="关闭">✕</button>
+      </div>
+      <div class="p-5 space-y-3">
+        <input id="inputSpell" type="text" placeholder="轻声说出你的咒语或问题…" class="w-full rounded-xl px-3 py-2 border border-zinc-300/70 dark:border-zinc-700/70 bg-transparent outline-none" />
+        <p class="text-xs text-zinc-500 dark:text-zinc-400">例如：
+          <em>“把《小猫的共感日记》中 2025-08 的条目整理成一首短诗。”</em>
+        </p>
+      </div>
+      <div class="px-5 py-3 border-t border-zinc-200/60 dark:border-zinc-800/60 flex items-center justify-end gap-3">
+        <button class="rounded-xl px-3 py-1.5 text-sm border border-zinc-300/70 dark:border-zinc-700/70" value="cancel">取消</button>
+        <button id="castBtn" class="rounded-xl px-3 py-1.5 text-sm bg-zinc-900 text-white dark:bg-white dark:text-zinc-900">施法（本地占位）</button>
+      </div>
+    </form>
+  </dialog>
 
   <script>
-    function handleKeyPress(event) {
-      if (event.key === 'Enter') {
-        const input = document.getElementById('spellInput').value.trim();
-        const r = document.getElementById('response');
-        if (input === "LittleSummer，今晚我想见小猫。") {
-          r.style.opacity = 1;
-          setTimeout(() => { window.location.href = "kitten.html"; }, 2500);
-        } else if (input === "Calor maris intra corpus, oculos claude in pace.") {
-          r.style.opacity = 1;
-          setTimeout(() => { window.location.href = "spell1.html"; }, 2500);
-        } else {
-          alert("LittleSummer 没有回应……也许你写错了咒语？");
-        }
-      }
+    // 年份
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // 主题切换
+    const themeBtn = document.getElementById('themeToggle');
+    const root = document.documentElement;
+    const saved = localStorage.getItem('theme');
+    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      root.classList.add('dark');
     }
+    themeBtn.addEventListener('click', () => {
+      root.classList.toggle('dark');
+      localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
+    });
+
+    // 星点
+    const starWrap = document.getElementById('stars');
+    for (let i = 0; i < 60; i++){
+      const s = document.createElement('span');
+      s.className = 'twinkle';
+      s.style.left = Math.random()*100 + '%';
+      s.style.top = Math.random()*100 + '%';
+      s.style.animationDelay = (Math.random()*4).toFixed(2) + 's';
+      starWrap.appendChild(s);
+    }
+
+    // 召唤面板
+    const summon = document.getElementById('summon');
+    document.getElementById('invoke').addEventListener('click', () => summon.showModal());
+    document.getElementById('castBtn').addEventListener('click', (e)=>{
+      e.preventDefault();
+      const val = document.getElementById('inputSpell').value.trim();
+      if(!val){
+        alert('请先说出你的咒语。');
+        return;
+      }
+      // 这里保留为本地占位；未来可对接你的本地小程序或服务
+      alert('已收到：' + val + '\n（占位：后续可接入 LittleSummer / 本地脚本）');
+      summon.close();
+    });
+
+    // 键盘唤醒（占位）：按下 L 键打开面板
+    document.addEventListener('keydown', (e)=>{
+      if(e.key.toLowerCase() === 'l' && !summon.open){
+        summon.showModal();
+      }
+    });
   </script>
 </body>
 </html>
