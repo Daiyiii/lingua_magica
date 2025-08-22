@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Lingua Magica · 极简主页</title>
-  <meta name="description" content="极简魔法主页：只有咒语与解析。" />
+  <meta name="description" content="极简魔法主页：只有咒语与解析，并支持本地更多咒语与备注。" />
   <style>
     :root{--fg:#111;--bg:#fff;--muted:#666;--border:#ddd}
     @media(prefers-color-scheme:dark){:root{--fg:#fafafa;--bg:#0b0b0b;--muted:#aaa;--border:#222}}
@@ -22,13 +22,15 @@
     details{border:1px dashed var(--border);border-radius:10px;padding:10px}
     summary{cursor:pointer;color:var(--muted)}
     footer{margin-top:32px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between}
+    .muted{color:var(--muted)}
   </style>
 </head>
 <body>
   <main class="wrap">
     <h1>Lingua Magica · 极简主页</h1>
-    <p class="desc">交互页面只有两部分：<strong>咒语</strong> 与 <strong>解析</strong>。以下为第一个咒语。</p>
+    <p class="desc">交互页面只有两部分：<strong>咒语</strong> 与 <strong>解析</strong>。以下为第一个咒语；同时支持显示本地的“更多咒语”。</p>
 
+    <!-- 第一条固定咒语 -->
     <section class="card" aria-labelledby="spell-1">
       <h2 id="spell-1" style="margin:0 0 8px; font-size:18px;">🪄 沐浴露瓶盖开启术</h2>
       <div class="block" id="spellText">
@@ -41,6 +43,7 @@ Calor maris intra corpus, oculos claude in pace.
       </div>
     </section>
 
+    <!-- 解析 -->
     <section class="card">
       <h3 style="margin:0 0 8px;font-size:16px;">解析 · Explanation</h3>
       <details open>
@@ -53,6 +56,23 @@ Calor maris intra corpus, oculos claude in pace.
 小贴士：若逆时针无法解除，确认下部是否已拧紧到底；若仍不行，检查泵头边缘是否有一次性限位扣需要先掰除。
         </div>
       </details>
+    </section>
+
+    <!-- 给第一条咒语添加备注/描述（只保存在本地） -->
+    <section class="card" aria-labelledby="note-1">
+      <h3 id="note-1" style="margin:0 0 8px;font-size:16px">附加描述 · 仅本地保存</h3>
+      <textarea id="descInput" class="block" placeholder="为本条咒语添加你的描述、体验或使用心得…（仅保存在这台设备的浏览器）" style="min-height:90px"></textarea>
+      <div class="row" style="margin-top:10px">
+        <button class="btn" id="saveDesc">保存描述</button>
+        <span class="muted" id="savedState"></span>
+      </div>
+      <div id="descShow" class="block" style="margin-top:10px;display:none"></div>
+    </section>
+
+    <!-- 更多咒语（来自本地 localStorage，由管理员页添加） -->
+    <section class="card" aria-labelledby="more-spells">
+      <h3 id="more-spells" style="margin:0 0 8px;font-size:16px">更多咒语（来自本地）</h3>
+      <div id="moreSpells" class="muted">（尚无更多；可前往 <a href="./admin.html">管理员入口</a> 添加）</div>
     </section>
 
     <footer>
@@ -83,6 +103,48 @@ Calor maris intra corpus, oculos claude in pace.
       la.text = `Calor maris intra corpus, oculos claude in pace.`;
       la.rate = 0.95; speechSynthesis.speak(la);
     });
+
+    // ===== 本地描述：只针对第一条固定咒语 =====
+    const DESC_KEY = 'lm_spell1_desc';
+    const descInput = document.getElementById('descInput');
+    const descShow = document.getElementById('descShow');
+    const savedState = document.getElementById('savedState');
+
+    function loadDesc(){
+      const t = localStorage.getItem(DESC_KEY)||'';
+      descInput.value = t;
+      if(t){ descShow.style.display='block'; descShow.textContent = t; }
+    }
+    loadDesc();
+
+    document.getElementById('saveDesc').addEventListener('click', ()=>{
+      const t = descInput.value||'';
+      localStorage.setItem(DESC_KEY, t);
+      savedState.textContent = '（已保存到本地）';
+      if(t){ descShow.style.display='block'; descShow.textContent = t; } else { descShow.style.display='none'; }
+      setTimeout(()=> savedState.textContent='', 1500);
+    });
+
+    // ===== 渲染更多咒语：来自管理员页写入的 lm_spells =====
+    const KEY = 'lm_spells';
+    function readAll(){ try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ return [] } }
+    const mount = document.getElementById('moreSpells');
+
+    function renderMore(){
+      const data = readAll();
+      if(!data.length){ mount.innerHTML = '（暂无更多；可前往 <a href="./admin.html">管理员入口</a> 添加）'; return; }
+      const frag = document.createDocumentFragment();
+      data.forEach(s=>{
+        const sec = document.createElement('section');
+        sec.className = 'card'; sec.style.margin = '10px 0';
+        sec.innerHTML = `<h4 style="margin:0 0 6px;font-size:15px">${s.title||'未命名咒语'}</h4>
+        <pre class="mono block" style="white-space:pre-wrap">${(s.body||'')}</pre>
+        ${s.analysis? `<details style="margin-top:6px"><summary class="muted">解析</summary><div class="block" style="margin-top:6px">${(s.analysis||'').replace(/\n/g,'<br>')}</div></details>` : ''}`;
+        frag.appendChild(sec);
+      });
+      mount.innerHTML=''; mount.appendChild(frag);
+    }
+    renderMore();
   </script>
 </body>
 </html>
