@@ -21,7 +21,7 @@
     .block{border:1px solid var(--border);padding:12px;border-radius:10px;background:transparent;white-space:pre-wrap}
     details{border:1px dashed var(--border);border-radius:10px;padding:10px}
     summary{cursor:pointer;color:var(--muted)}
-    .footer{margin-top:32px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between}
+    footer{margin-top:32px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between}
   </style>
 </head>
 <body>
@@ -55,10 +55,12 @@ Calor maris intra corpus, oculos claude in pace.
       </details>
     </section>
 
-    <div class="footer">
+    <footer>
       <span>© <span id="year"></span> Lingua Magica</span>
-      <a href="#" class="mono" id="addMore">+ 添加新咒语（占位）</a>
-    </div>
+      <div>
+        <a href="./index.html">主页</a> · <a href="./admin.html">管理员入口</a>
+      </div>
+    </footer>
   </main>
 
   <script>
@@ -80,12 +82,6 @@ Calor maris intra corpus, oculos claude in pace.
       const la = new SpeechSynthesisUtterance();
       la.text = `Calor maris intra corpus, oculos claude in pace.`;
       la.rate = 0.95; speechSynthesis.speak(la);
-    });
-
-    // 添加新咒语（占位逻辑：后续可接入存储）
-    document.getElementById('addMore').addEventListener('click', (e)=>{
-      e.preventDefault();
-      alert('占位：这里可以接入你的本地脚本，新增一条咒语卡片。');
     });
   </script>
 </body>
