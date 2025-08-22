@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lingua Magica · 管理员添加咒语</title>
+  <meta name="description" content="仅管理员可添加或管理咒语（本地存储示例）。" />
+  <style>
+    :root{--fg:#111;--bg:#fff;--muted:#666;--border:#ddd;--ok:#0a7;--bad:#b22}
+    @media(prefers-color-scheme:dark){:root{--fg:#fafafa;--bg:#0b0b0b;--muted:#aaa;--border:#222}}
+    *{box-sizing:border-box}html,body{margin:0;height:100%}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";color:var(--fg);background:var(--bg)}
+    .wrap{max-width:760px;margin:0 auto;padding:20px}
+    h1{font-size:22px;margin:12px 0 6px}
+    .card{border:1px solid var(--border);border-radius:14px;padding:16px;margin:14px 0}
+    label{display:block;font-size:12px;color:var(--muted)}
+    input,textarea{width:100%;border:1px solid var(--border);background:transparent;border-radius:10px;padding:10px;margin-top:6px;color:inherit}
+    textarea{min-height:120px}
+    .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .btn{border:1px solid var(--border);background:transparent;padding:8px 12px;border-radius:10px;cursor:pointer}
+    .btn.primary{border-color:var(--ok);color:var(--ok)}
+    .btn.danger{border-color:var(--bad);color:var(--bad)}
+    .muted{color:var(--muted)}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+    .list-item{border:1px dashed var(--border);border-radius:12px;padding:10px;margin-top:8px}
+    .ok{color:var(--ok)}.bad{color:var(--bad)}
+    dialog{border:1px solid var(--border);border-radius:12px;padding:0}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>管理员添加咒语</h1>
+    <p class="muted">示例实现：基于浏览器 <strong>localStorage</strong> 的本地数据存储。若要真正安全的“仅管理员”，建议改为服务端认证。</p>
+
+    <section class="card">
+      <h2 style="margin:0 0 8px;font-size:16px">登录 · Admin</h2>
+      <div class="row"><input id="pwd" type="password" placeholder="输入管理员口令" style="flex:1"/><button class="btn" id="login">登录</button></div>
+      <p class="muted" style="margin-top:6px">当前管理员口令：<span class="mono">Little Summer</span></p>
+      <p id="loginState" class="muted"></p>
+    </section>
+
+    <section id="formSec" class="card" hidden>
+      <h2 style="margin:0 0 8px;font-size:16px">添加新咒语</h2>
+      <label>标题 / Title<input id="title" placeholder="例如：观看护符"/></label>
+      <label style="margin-top:8px">咒语正文 / Spell<textarea id="body" placeholder="填写具体咒语文本"></textarea></label>
+      <label style="margin-top:8px">解析 / Explanation<textarea id="analysis" placeholder="如何使用、注意事项、背景原理等"></textarea></label>
+      <div class="row">
+        <button class="btn primary" id="save">保存到本地</button>
+        <button class="btn" id="preview">预览</button>
+      </div>
+    </section>
+
+    <section id="listSec" class="card" hidden>
+      <h2 style="margin:0 0 8px;font-size:16px">已有咒语</h2>
+      <div id="list"></div>
+      <div class="row"><button class="btn danger" id="clearAll">清空全部（本地）</button><button class="btn" id="exportBtn">导出 JSON</button><label class="btn" for="importFile">导入 JSON</label><input id="importFile" type="file" accept="application/json" hidden></div>
+    </section>
+
+    <p class="muted">返回主页：<a href="./index.html">index.html</a></p>
+  </main>
+
+  <dialog id="prev">
+    <form method="dialog" style="padding:14px 16px">
+      <h3 style="margin:0 0 8px;font-size:16px">预览</h3>
+      <div id="prevBox" class="list-item" style="max-height:50vh;overflow:auto"></div>
+      <div class="row" style="margin-top:10px;justify-content:flex-end"><button class="btn">关闭</button></div>
+    </form>
+  </dialog>
+
+  <script>
+    // ======== 简易管理员校验（前端示例，不适合正式生产） ========
+    // 管理员口令 "Little Summer" 的 SHA-256 哈希
+    const ADMIN_HASH = '2441cc448c8e98e25f5b63fbaef8cf6c63c7b6b103339a2dd7f99840f9f70f9a';
+    const enc = new TextEncoder();
+    const toHex = buf => Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+
+    const state = { authed:false };
+    const pwd = document.getElementById('pwd');
+    const loginBtn = document.getElementById('login');
+    const loginState = document.getElementById('loginState');
+    const formSec = document.getElementById('formSec');
+    const listSec = document.getElementById('listSec');
+
+    async function verify(){
+      const digest = await crypto.subtle.digest('SHA-256', enc.encode(pwd.value||''));
+      state.authed = (toHex(digest) === ADMIN_HASH);
+      loginState.textContent = state.authed ? '✅ 已登录（本页仅本地校验）' : '❌ 口令不正确';
+      formSec.hidden = !state.authed; listSec.hidden = !state.authed;
+    }
+    loginBtn.addEventListener('click', verify);
+    pwd.addEventListener('keydown', e=>{ if(e.key==='Enter'){ verify(); } });
+
+    // ======== 本地数据：lm_spells ========
+    const KEY = 'lm_spells';
+    const readAll = ()=>{ try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ return [] } };
+    const writeAll = arr => localStorage.setItem(KEY, JSON.stringify(arr));
+
+    const list = document.getElementById('list');
+    function render(){
+      const arr = readAll();
+      list.innerHTML = '';
+      arr.forEach((s,i)=>{
+        const div = document.createElement('div');
+        div.className = 'list-item';
+        div.innerHTML = `<div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><strong>${s.title||'(无标题)'}</strong><span class="muted mono">#${s.id}</span></div>
+        <div class="muted" style="margin-top:4px">创建：${new Date(s.createdAt).toLocaleString()}</div>
+        <details style="margin-top:6px"><summary>咒语</summary><pre class="mono" style="white-space:pre-wrap">${s.body||''}</pre></details>
+        <details style="margin-top:6px"><summary>解析</summary><div>${(s.analysis||'').replace(/\n/g,'<br>')}</div></details>
+        <div class="row" style="margin-top:8px">
+          <button class="btn" data-act="copy" data-id="${s.id}">复制咒语</button>
+          <button class="btn danger" data-act="del" data-id="${s.id}">删除</button>
+        </div>`;
+        list.appendChild(div);
+      });
+    }
+
+    // 保存 & 预览
+    const title = document.getElementById('title');
+    const body = document.getElementById('body');
+    const analysis = document.getElementById('analysis');
+    const saveBtn = document.getElementById('save');
+    const previewBtn = document.getElementById('preview');
+    const prev = document.getElementById('prev');
+    const prevBox = document.getElementById('prevBox');
+
+    saveBtn.addEventListener('click', ()=>{
+      const t = (title.value||'').trim();
+      const b = (body.value||'').trim();
+      const a = (analysis.value||'').trim();
+      if(!b){ alert('请填写咒语正文'); return }
+      const arr = readAll();
+      const id = Date.now().toString(36);
+      arr.unshift({ id, title: t, body: b, analysis: a, createdAt: Date.now() });
+      writeAll(arr); title.value=''; body.value=''; analysis.value='';
+      render(); alert('已保存到本地');
+    });
+
+    previewBtn.addEventListener('click', ()=>{
+      prevBox.innerHTML = `<strong>${(title.value||'(预览)')}</strong><hr>`+
+      `<div><em>咒语</em><pre class='mono' style='white-space:pre-wrap'>${(body.value||'')}</pre></div>`+
+      `<div style='margin-top:6px'><em>解析</em><div>${(analysis.value||'').replace(/\n/g,'<br>')}</div></div>`;
+      prev.showModal();
+    });
+
+    // 列表操作
+    list.addEventListener('click', async (e)=>{
+      const btn = e.target.closest('button'); if(!btn) return;
+      const id = btn.dataset.id; const act = btn.dataset.act; const arr = readAll();
+      if(act==='del'){
+        if(confirm('确认删除？')){ writeAll(arr.filter(s=>s.id!==id)); render(); }
+      } else if (act==='copy'){
+        const s = arr.find(x=>x.id===id); if(!s) return;
+        try{ await navigator.clipboard.writeText(s.body||''); alert('已复制咒语'); }catch(err){ alert('复制失败'); }
+      }
+    });
+
+    // 导出 / 导入
+    document.getElementById('exportBtn').addEventListener('click', ()=>{
+      const blob = new Blob([JSON.stringify(readAll(),null,2)], {type:'application/json'});
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'lm_spells.json'; a.click();
+    });
+    document.getElementById('importFile').addEventListener('change', (e)=>{
+      const f = e.target.files[0]; if(!f) return;
+      const reader = new FileReader();
+      reader.onload = ()=>{ try{ const arr = JSON.parse(reader.result||'[]'); if(Array.isArray(arr)){ writeAll(arr); render(); alert('已导入'); } }catch(err){ alert('文件格式不对'); } };
+      reader.readAsText(f);
+    });
+
+    // 初次渲染（未登录也可看已有条目，但无法修改）
+    render();
+  </script>
+</body>
+</html>
