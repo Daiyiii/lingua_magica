@@ -3,59 +3,55 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lingua Magica · 管理员添加咒语</title>
-  <meta name="description" content="仅管理员可添加或管理咒语（本地存储示例）。" />
+  <title>Lingua Magica · 极简主页</title>
+  <meta name="description" content="极简魔法主页：只展示咒语与解析，内容来自仓库里的 spells.json。" />
   <style>
-    :root{--fg:#111;--bg:#fff;--muted:#666;--border:#ddd;--ok:#0a7;--bad:#b22}
+    :root{--fg:#111;--bg:#fff;--muted:#666;--border:#ddd}
     @media(prefers-color-scheme:dark){:root{--fg:#fafafa;--bg:#0b0b0b;--muted:#aaa;--border:#222}}
     *{box-sizing:border-box}html,body{margin:0;height:100%}
     body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";color:var(--fg);background:var(--bg)}
     .wrap{max-width:760px;margin:0 auto;padding:20px}
-    h1{font-size:22px;margin:12px 0 6px}
+    h1{font-size:22px;margin:10px 0 6px}
+    p.desc{margin:0 0 16px;color:var(--muted)}
     .card{border:1px solid var(--border);border-radius:14px;padding:16px;margin:14px 0}
-    label{display:block;font-size:12px;color:var(--muted)}
-    input,textarea{width:100%;border:1px solid var(--border);background:transparent;border-radius:10px;padding:10px;margin-top:6px;color:inherit}
-    textarea{min-height:120px}
-    .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
     .btn{border:1px solid var(--border);background:transparent;padding:8px 12px;border-radius:10px;cursor:pointer}
-    .btn.primary{border-color:var(--ok);color:var(--ok)}
-    .btn.danger{border-color:var(--bad);color:var(--bad)}
-    .muted{color:var(--muted)}
+    .btn:active{transform:translateY(1px)}
     .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
-    .list-item{border:1px dashed var(--border);border-radius:12px;padding:10px;margin-top:8px}
-    .ok{color:var(--ok)}.bad{color:var(--bad)}
-    dialog{border:1px solid var(--border);border-radius:12px;padding:0}
+    .block{border:1px solid var(--border);padding:12px;border-radius:10px;background:transparent;white-space:pre-wrap}
+    details{border:1px dashed var(--border);border-radius:10px;padding:10px}
+    summary{cursor:pointer;color:var(--muted)}
     footer{margin-top:32px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between}
+    .muted{color:var(--muted)}
+    .hidden{display:none}
+    form.add{border:1px dashed var(--border);border-radius:12px;padding:12px;margin:10px 0}
+    form.add input, form.add textarea{width:100%;border:1px solid var(--border);background:transparent;border-radius:10px;padding:10px;margin-top:6px;color:inherit}
+    form.add textarea{min-height:100px}
   </style>
 </head>
 <body>
   <main class="wrap">
-    <h1>管理员添加咒语</h1>
-    <p class="muted">示例实现：基于浏览器 <strong>localStorage</strong> 的本地数据存储。本页仅作演示。</p>
+    <h1>Lingua Magica · 极简主页</h1>
+    <p class="desc">下方所有咒语均直接来自仓库根目录的 <code class="mono">spells.json</code>，不是本地缓存。</p>
 
-    <section class="card">
-      <h2 style="margin:0 0 8px;font-size:16px">登录 · Admin</h2>
-      <div class="row"><input id="pwd" type="password" placeholder="输入管理员口令" style="flex:1"/><button class="btn" id="login">登录</button></div>
-      <p class="muted" style="margin-top:6px">管理员口令：<span class="mono">Little Summer</span></p>
-      <p id="loginState" class="muted"></p>
-    </section>
+    <!-- 动态列表挂载点 -->
+    <div id="spells"></div>
 
-    <section id="formSec" class="card" hidden>
-      <h2 style="margin:0 0 8px;font-size:16px">添加新咒语</h2>
-      <label>标题 / Title<input id="title" placeholder="例如：观看护符"/></label>
-      <label style="margin-top:8px">咒语正文 / Spell<textarea id="body" placeholder="填写具体咒语文本"></textarea></label>
-      <label style="margin-top:8px">解析 / Explanation<textarea id="analysis" placeholder="如何使用、注意事项、背景原理等"></textarea></label>
-      <div class="row">
-        <button class="btn primary" id="save">保存到本地</button>
-        <button class="btn" id="preview">预览</button>
+    <!-- 轻量添加表单（直接更新内存并提供一键下载 JSON，便于你提交到仓库） -->
+    <form id="addForm" class="add">
+      <strong>添加咒语（编辑后点“下载 JSON”，将文件替换仓库里的 <span class="mono">spells.json</span>）</strong>
+      <label style="display:block;margin-top:8px;font-size:12px;color:var(--muted)">标题</label>
+      <input id="fTitle" placeholder="例如：观看护符"/>
+      <label style="display:block;margin-top:8px;font-size:12px;color:var(--muted)">咒语正文</label>
+      <textarea id="fBody" placeholder="填写具体咒语文本"></textarea>
+      <label style="display:block;margin-top:8px;font-size:12px;color:var(--muted)">解析</label>
+      <textarea id="fAnalysis" placeholder="如何使用、注意事项、背景原理等"></textarea>
+      <div class="row" style="margin-top:8px">
+        <button class="btn" id="addBtn">添加到当前列表</button>
+        <button class="btn" id="downloadBtn" type="button">下载 JSON</button>
+        <span class="muted" id="hint"></span>
       </div>
-    </section>
-
-    <section id="listSec" class="card" hidden>
-      <h2 style="margin:0 0 8px;font-size:16px">已有咒语</h2>
-      <div id="list"></div>
-      <div class="row"><button class="btn danger" id="clearAll">清空全部（本地）</button><button class="btn" id="exportBtn">导出 JSON</button><label class="btn" for="importFile">导入 JSON</label><input id="importFile" type="file" accept="application/json" hidden></div>
-    </section>
+    </form>
 
     <footer>
       <span>© <span id="year"></span> Lingua Magica</span>
@@ -65,113 +61,72 @@
     </footer>
   </main>
 
-  <dialog id="prev">
-    <form method="dialog" style="padding:14px 16px">
-      <h3 style="margin:0 0 8px;font-size:16px">预览</h3>
-      <div id="prevBox" class="list-item" style="max-height:50vh;overflow:auto"></div>
-      <div class="row" style="margin-top:10px;justify-content:flex-end"><button class="btn">关闭</button></div>
-    </form>
-  </dialog>
-
   <script>
-    // ======== 简易管理员校验（前端示例） ========
-    const ADMIN_PASSWORD = 'Little Summer';
-    const state = { authed:false };
-    const pwd = document.getElementById('pwd');
-    const loginBtn = document.getElementById('login');
-    const loginState = document.getElementById('loginState');
-    const formSec = document.getElementById('formSec');
-    const listSec = document.getElementById('listSec');
+    document.getElementById('year').textContent = new Date().getFullYear();
 
-    function verify(){
-      state.authed = (pwd.value === ADMIN_PASSWORD);
-      loginState.textContent = state.authed ? '✅ 已登录（本页仅本地校验）' : '❌ 口令不正确';
-      formSec.hidden = !state.authed; listSec.hidden = !state.authed;
+    // 读取 spells.json
+    const mount = document.getElementById('spells');
+    let data = [];
+
+    async function loadSpells(){
+      try{
+        const res = await fetch('./spells.json', {cache:'no-cache'});
+        if(!res.ok) throw new Error('无法读取 spells.json');
+        data = await res.json();
+        render();
+      }catch(e){
+        mount.innerHTML = `<p class='muted'>读取 <span class='mono'>spells.json</span> 失败：${e.message}。请确认该文件已放在仓库根目录并允许被 Pages 访问。</p>`;
+      }
     }
-    loginBtn.addEventListener('click', verify);
-    pwd.addEventListener('keydown', e=>{ if(e.key==='Enter'){ verify(); } });
 
-    // ======== 本地数据：lm_spells ========
-    const KEY = 'lm_spells';
-    const readAll = ()=>{ try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ return [] } };
-    const writeAll = arr => localStorage.setItem(KEY, JSON.stringify(arr));
-
-    const list = document.getElementById('list');
     function render(){
-      const arr = readAll();
-      list.innerHTML = '';
-      arr.forEach((s,i)=>{
-        const div = document.createElement('div');
-        div.className = 'list-item';
-        div.innerHTML = `<div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><strong>${s.title||'(无标题)'}</strong><span class="muted mono">#${s.id}</span></div>
-        <div class="muted" style="margin-top:4px">创建：${new Date(s.createdAt).toLocaleString()}</div>
-        <details style="margin-top:6px"><summary>咒语</summary><pre class="mono" style="white-space:pre-wrap">${s.body||''}</pre></details>
-        <details style="margin-top:6px"><summary>解析</summary><div>${(s.analysis||'').replace(/\n/g,'<br>')}</div></details>
-        <div class="row" style="margin-top:8px">
-          <button class="btn" data-act="copy" data-id="${s.id}">复制咒语</button>
-          <button class="btn danger" data-act="del" data-id="${s.id}">删除</button>
-        </div>`;
-        list.appendChild(div);
+      mount.innerHTML = '';
+      if(!Array.isArray(data) || !data.length){
+        mount.innerHTML = `<div class='card muted'>（当前还没有咒语，请添加后下载 JSON 上传到仓库）</div>`; return;
+      }
+      data.forEach(s=>{
+        const sec = document.createElement('section');
+        sec.className = 'card';
+        sec.innerHTML = `
+          <h2 style="margin:0 0 8px; font-size:18px;">${s.title||'未命名咒语'}</h2>
+          <div class="block mono">${(s.body||'').replace(/\n/g,'\n')}</div>
+          ${s.analysis ? `<details style="margin-top:8px"><summary>解析 · Explanation</summary><div class="block" style="margin-top:8px">${(s.analysis||'').replace(/\n/g,'<br>')}</div></details>`: ''}
+        `;
+        mount.appendChild(sec);
       });
     }
 
-    // 保存 & 预览
-    const title = document.getElementById('title');
-    const body = document.getElementById('body');
-    const analysis = document.getElementById('analysis');
-    const saveBtn = document.getElementById('save');
-    const previewBtn = document.getElementById('preview');
-    const prev = document.getElementById('prev');
-    const prevBox = document.getElementById('prevBox');
+    // 添加 + 下载 JSON（用于提交到仓库）
+    const addBtn = document.getElementById('addBtn');
+    const dlBtn = document.getElementById('downloadBtn');
+    const hint = document.getElementById('hint');
 
-    saveBtn.addEventListener('click', ()=>{
-      const t = (title.value||'').trim();
-      const b = (body.value||'').trim();
-      const a = (analysis.value||'').trim();
-      if(!b){ alert('请填写咒语正文'); return }
-      const arr = readAll();
-      const id = Date.now().toString(36);
-      arr.unshift({ id, title: t, body: b, analysis: a, createdAt: Date.now() });
-      writeAll(arr); title.value=''; body.value=''; analysis.value='';
-      render(); alert('已保存到本地');
+    addBtn.addEventListener('click', (e)=>{
+      e.preventDefault();
+      const title = document.getElementById('fTitle').value.trim();
+      const body = document.getElementById('fBody').value.trim();
+      const analysis = document.getElementById('fAnalysis').value.trim();
+      if(!body){ alert('请填写咒语正文'); return; }
+      const id = `w-${Date.now().toString(36)}`;
+      const item = { id, title, body, analysis, createdAt: new Date().toISOString() };
+      data = Array.isArray(data)? [item, ...data] : [item];
+      render();
+      hint.textContent = '已添加到当前页面，请点击“下载 JSON”并替换仓库中的 spells.json';
+      setTimeout(()=>hint.textContent='', 3000);
+      document.getElementById('fTitle').value='';
+      document.getElementById('fBody').value='';
+      document.getElementById('fAnalysis').value='';
     });
 
-    previewBtn.addEventListener('click', ()=>{
-      prevBox.innerHTML = `<strong>${(title.value||'(预览)')}</strong><hr>`+
-      `<div><em>咒语</em><pre class='mono' style='white-space:pre-wrap'>${(body.value||'')}</pre></div>`+
-      `<div style='margin-top:6px'><em>解析</em><div>${(analysis.value||'').replace(/\n/g,'<br>')}</div></div>`;
-      prev.showModal();
+    dlBtn.addEventListener('click', ()=>{
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'spells.json';
+      a.click();
     });
 
-    // 列表操作
-    list.addEventListener('click', async (e)=>{
-      const btn = e.target.closest('button'); if(!btn) return;
-      const id = btn.dataset.id; const act = btn.dataset.act; const arr = readAll();
-      if(act==='del'){
-        if(confirm('确认删除？')){ writeAll(arr.filter(s=>s.id!==id)); render(); }
-      } else if (act==='copy'){
-        const s = arr.find(x=>x.id===id); if(!s) return;
-        try{ await navigator.clipboard.writeText(s.body||''); alert('已复制咒语'); }catch(err){ alert('复制失败'); }
-      }
-    });
-
-    // 导出 / 导入
-    document.getElementById('exportBtn').addEventListener('click', ()=>{
-      const blob = new Blob([JSON.stringify(readAll(),null,2)], {type:'application/json'});
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'lm_spells.json'; a.click();
-    });
-    document.getElementById('importFile').addEventListener('change', (e)=>{
-      const f = e.target.files[0]; if(!f) return;
-      const reader = new FileReader();
-      reader.onload = ()=>{ try{ const arr = JSON.parse(reader.result||'[]'); if(Array.isArray(arr)){ writeAll(arr); render(); alert('已导入'); } }catch(err){ alert('文件格式不对'); } };
-      reader.readAsText(f);
-    });
-
-    // 初次渲染（未登录也可看已有条目，但无法修改）
-    render();
-
-    // 年份
-    document.getElementById('year').textContent = new Date().getFullYear();
+    loadSpells();
   </script>
 </body>
 </html>
