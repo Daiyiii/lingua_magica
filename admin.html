@@ -25,17 +25,18 @@
     .list-item{border:1px dashed var(--border);border-radius:12px;padding:10px;margin-top:8px}
     .ok{color:var(--ok)}.bad{color:var(--bad)}
     dialog{border:1px solid var(--border);border-radius:12px;padding:0}
+    footer{margin-top:32px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between}
   </style>
 </head>
 <body>
   <main class="wrap">
     <h1>管理员添加咒语</h1>
-    <p class="muted">示例实现：基于浏览器 <strong>localStorage</strong> 的本地数据存储。若要真正安全的“仅管理员”，建议改为服务端认证。</p>
+    <p class="muted">示例实现：基于浏览器 <strong>localStorage</strong> 的本地数据存储。本页仅作演示。</p>
 
     <section class="card">
       <h2 style="margin:0 0 8px;font-size:16px">登录 · Admin</h2>
       <div class="row"><input id="pwd" type="password" placeholder="输入管理员口令" style="flex:1"/><button class="btn" id="login">登录</button></div>
-      <p class="muted" style="margin-top:6px">当前管理员口令：<span class="mono">Little Summer</span></p>
+      <p class="muted" style="margin-top:6px">管理员口令：<span class="mono">little summer</span>（大小写敏感）</p>
       <p id="loginState" class="muted"></p>
     </section>
 
@@ -56,7 +57,12 @@
       <div class="row"><button class="btn danger" id="clearAll">清空全部（本地）</button><button class="btn" id="exportBtn">导出 JSON</button><label class="btn" for="importFile">导入 JSON</label><input id="importFile" type="file" accept="application/json" hidden></div>
     </section>
 
-    <p class="muted">返回主页：<a href="./index.html">index.html</a></p>
+    <footer>
+      <span>© <span id="year"></span> Lingua Magica</span>
+      <div>
+        <a href="./index.html">主页</a> · <a href="./admin.html">管理员入口</a>
+      </div>
+    </footer>
   </main>
 
   <dialog id="prev">
@@ -68,12 +74,8 @@
   </dialog>
 
   <script>
-    // ======== 简易管理员校验（前端示例，不适合正式生产） ========
-    // 管理员口令 "Little Summer" 的 SHA-256 哈希
-    const ADMIN_HASH = '2441cc448c8e98e25f5b63fbaef8cf6c63c7b6b103339a2dd7f99840f9f70f9a';
-    const enc = new TextEncoder();
-    const toHex = buf => Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-
+    // ======== 简易管理员校验（前端示例） ========
+    const ADMIN_PASSWORD = 'little summer';
     const state = { authed:false };
     const pwd = document.getElementById('pwd');
     const loginBtn = document.getElementById('login');
@@ -81,9 +83,8 @@
     const formSec = document.getElementById('formSec');
     const listSec = document.getElementById('listSec');
 
-    async function verify(){
-      const digest = await crypto.subtle.digest('SHA-256', enc.encode(pwd.value||''));
-      state.authed = (toHex(digest) === ADMIN_HASH);
+    function verify(){
+      state.authed = (pwd.value === ADMIN_PASSWORD);
       loginState.textContent = state.authed ? '✅ 已登录（本页仅本地校验）' : '❌ 口令不正确';
       formSec.hidden = !state.authed; listSec.hidden = !state.authed;
     }
@@ -102,13 +103,13 @@
       arr.forEach((s,i)=>{
         const div = document.createElement('div');
         div.className = 'list-item';
-        div.innerHTML = `<div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><strong>${s.title||'(无标题)'}</strong><span class="muted mono">#${s.id}</span></div>
-        <div class="muted" style="margin-top:4px">创建：${new Date(s.createdAt).toLocaleString()}</div>
-        <details style="margin-top:6px"><summary>咒语</summary><pre class="mono" style="white-space:pre-wrap">${s.body||''}</pre></details>
-        <details style="margin-top:6px"><summary>解析</summary><div>${(s.analysis||'').replace(/\n/g,'<br>')}</div></details>
-        <div class="row" style="margin-top:8px">
-          <button class="btn" data-act="copy" data-id="${s.id}">复制咒语</button>
-          <button class="btn danger" data-act="del" data-id="${s.id}">删除</button>
+        div.innerHTML = `<div style=\"display:flex;justify-content:space-between;gap:10px;align-items:center\"><strong>${s.title||'(无标题)'}</strong><span class=\"muted mono\">#${s.id}</span></div>
+        <div class=\"muted\" style=\"margin-top:4px\">创建：${new Date(s.createdAt).toLocaleString()}</div>
+        <details style=\"margin-top:6px\"><summary>咒语</summary><pre class=\"mono\" style=\"white-space:pre-wrap\">${s.body||''}</pre></details>
+        <details style=\"margin-top:6px\"><summary>解析</summary><div>${(s.analysis||'').replace(/\\n/g,'<br>')}</div></details>
+        <div class=\"row\" style=\"margin-top:8px\">
+          <button class=\"btn\" data-act=\"copy\" data-id=\"${s.id}\">复制咒语</button>
+          <button class=\"btn danger\" data-act=\"del\" data-id=\"${s.id}\">删除</button>
         </div>`;
         list.appendChild(div);
       });
@@ -138,7 +139,7 @@
     previewBtn.addEventListener('click', ()=>{
       prevBox.innerHTML = `<strong>${(title.value||'(预览)')}</strong><hr>`+
       `<div><em>咒语</em><pre class='mono' style='white-space:pre-wrap'>${(body.value||'')}</pre></div>`+
-      `<div style='margin-top:6px'><em>解析</em><div>${(analysis.value||'').replace(/\n/g,'<br>')}</div></div>`;
+      `<div style='margin-top:6px'><em>解析</em><div>${(analysis.value||'').replace(/\\n/g,'<br>')}</div></div>`;
       prev.showModal();
     });
 
@@ -168,6 +169,9 @@
 
     // 初次渲染（未登录也可看已有条目，但无法修改）
     render();
+
+    // 年份
+    document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
