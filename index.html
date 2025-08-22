@@ -3,76 +3,58 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lingua Magica · 极简主页</title>
-  <meta name="description" content="极简魔法主页：只有咒语与解析，并支持本地更多咒语与备注。" />
+  <title>Lingua Magica · 管理员添加咒语</title>
+  <meta name="description" content="仅管理员可添加或管理咒语（本地存储示例）。" />
   <style>
-    :root{--fg:#111;--bg:#fff;--muted:#666;--border:#ddd}
+    :root{--fg:#111;--bg:#fff;--muted:#666;--border:#ddd;--ok:#0a7;--bad:#b22}
     @media(prefers-color-scheme:dark){:root{--fg:#fafafa;--bg:#0b0b0b;--muted:#aaa;--border:#222}}
     *{box-sizing:border-box}html,body{margin:0;height:100%}
     body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";color:var(--fg);background:var(--bg)}
-    .wrap{max-width:720px;margin:0 auto;padding:20px}
-    h1{font-size:22px;margin:10px 0 6px}
-    p.desc{margin:0 0 16px;color:var(--muted)}
+    .wrap{max-width:760px;margin:0 auto;padding:20px}
+    h1{font-size:22px;margin:12px 0 6px}
     .card{border:1px solid var(--border);border-radius:14px;padding:16px;margin:14px 0}
-    .row{display:flex;gap:10px;flex-wrap:wrap}
+    label{display:block;font-size:12px;color:var(--muted)}
+    input,textarea{width:100%;border:1px solid var(--border);background:transparent;border-radius:10px;padding:10px;margin-top:6px;color:inherit}
+    textarea{min-height:120px}
+    .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
     .btn{border:1px solid var(--border);background:transparent;padding:8px 12px;border-radius:10px;cursor:pointer}
-    .btn:active{transform:translateY(1px)}
-    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
-    .block{border:1px solid var(--border);padding:12px;border-radius:10px;background:transparent;white-space:pre-wrap}
-    details{border:1px dashed var(--border);border-radius:10px;padding:10px}
-    summary{cursor:pointer;color:var(--muted)}
-    footer{margin-top:32px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between}
+    .btn.primary{border-color:var(--ok);color:var(--ok)}
+    .btn.danger{border-color:var(--bad);color:var(--bad)}
     .muted{color:var(--muted)}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+    .list-item{border:1px dashed var(--border);border-radius:12px;padding:10px;margin-top:8px}
+    .ok{color:var(--ok)}.bad{color:var(--bad)}
+    dialog{border:1px solid var(--border);border-radius:12px;padding:0}
+    footer{margin-top:32px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between}
   </style>
 </head>
 <body>
   <main class="wrap">
-    <h1>Lingua Magica · 极简主页</h1>
-    <p class="desc">交互页面只有两部分：<strong>咒语</strong> 与 <strong>解析</strong>。以下为第一个咒语；同时支持显示本地的“更多咒语”。</p>
+    <h1>管理员添加咒语</h1>
+    <p class="muted">示例实现：基于浏览器 <strong>localStorage</strong> 的本地数据存储。本页仅作演示。</p>
 
-    <!-- 第一条固定咒语 -->
-    <section class="card" aria-labelledby="spell-1">
-      <h2 id="spell-1" style="margin:0 0 8px; font-size:18px;">🪄 沐浴露瓶盖开启术</h2>
-      <div class="block" id="spellText">
-将下面的部分拧到最紧，然后逆时针拧泵头。
-Calor maris intra corpus, oculos claude in pace.
-      </div>
-      <div class="row" style="margin-top:10px">
-        <button class="btn" id="copySpell">复制咒语</button>
-        <button class="btn" id="focusSpell">聚焦朗读</button>
-      </div>
-    </section>
-
-    <!-- 解析 -->
     <section class="card">
-      <h3 style="margin:0 0 8px;font-size:16px;">解析 · Explanation</h3>
-      <details open>
-        <summary>展开/收起解析</summary>
-        <div style="margin-top:8px" class="block">
-1) 大多数按压泵在首次使用时处于<strong>锁定</strong>状态：瓶颈处有一个外环（或下部筒身），需要先<strong>顺时针拧紧到底</strong>，让锁环与泵体对齐；
-2) 然后对泵头做<strong>逆时针</strong>旋转，解除运输锁；
-3) 解锁后，上下按压即可抽液。
-
-小贴士：若逆时针无法解除，确认下部是否已拧紧到底；若仍不行，检查泵头边缘是否有一次性限位扣需要先掰除。
-        </div>
-      </details>
+      <h2 style="margin:0 0 8px;font-size:16px">登录 · Admin</h2>
+      <div class="row"><input id="pwd" type="password" placeholder="输入管理员口令" style="flex:1"/><button class="btn" id="login">登录</button></div>
+      <p class="muted" style="margin-top:6px">管理员口令：<span class="mono">Little Summer</span></p>
+      <p id="loginState" class="muted"></p>
     </section>
 
-    <!-- 给第一条咒语添加备注/描述（只保存在本地） -->
-    <section class="card" aria-labelledby="note-1">
-      <h3 id="note-1" style="margin:0 0 8px;font-size:16px">附加描述 · 仅本地保存</h3>
-      <textarea id="descInput" class="block" placeholder="为本条咒语添加你的描述、体验或使用心得…（仅保存在这台设备的浏览器）" style="min-height:90px"></textarea>
-      <div class="row" style="margin-top:10px">
-        <button class="btn" id="saveDesc">保存描述</button>
-        <span class="muted" id="savedState"></span>
+    <section id="formSec" class="card" hidden>
+      <h2 style="margin:0 0 8px;font-size:16px">添加新咒语</h2>
+      <label>标题 / Title<input id="title" placeholder="例如：观看护符"/></label>
+      <label style="margin-top:8px">咒语正文 / Spell<textarea id="body" placeholder="填写具体咒语文本"></textarea></label>
+      <label style="margin-top:8px">解析 / Explanation<textarea id="analysis" placeholder="如何使用、注意事项、背景原理等"></textarea></label>
+      <div class="row">
+        <button class="btn primary" id="save">保存到本地</button>
+        <button class="btn" id="preview">预览</button>
       </div>
-      <div id="descShow" class="block" style="margin-top:10px;display:none"></div>
     </section>
 
-    <!-- 更多咒语（来自本地 localStorage，由管理员页添加） -->
-    <section class="card" aria-labelledby="more-spells">
-      <h3 id="more-spells" style="margin:0 0 8px;font-size:16px">更多咒语（来自本地）</h3>
-      <div id="moreSpells" class="muted">（尚无更多；可前往 <a href="./admin.html">管理员入口</a> 添加）</div>
+    <section id="listSec" class="card" hidden>
+      <h2 style="margin:0 0 8px;font-size:16px">已有咒语</h2>
+      <div id="list"></div>
+      <div class="row"><button class="btn danger" id="clearAll">清空全部（本地）</button><button class="btn" id="exportBtn">导出 JSON</button><label class="btn" for="importFile">导入 JSON</label><input id="importFile" type="file" accept="application/json" hidden></div>
     </section>
 
     <footer>
@@ -83,68 +65,113 @@ Calor maris intra corpus, oculos claude in pace.
     </footer>
   </main>
 
+  <dialog id="prev">
+    <form method="dialog" style="padding:14px 16px">
+      <h3 style="margin:0 0 8px;font-size:16px">预览</h3>
+      <div id="prevBox" class="list-item" style="max-height:50vh;overflow:auto"></div>
+      <div class="row" style="margin-top:10px;justify-content:flex-end"><button class="btn">关闭</button></div>
+    </form>
+  </dialog>
+
   <script>
+    // ======== 简易管理员校验（前端示例） ========
+    const ADMIN_PASSWORD = 'Little Summer';
+    const state = { authed:false };
+    const pwd = document.getElementById('pwd');
+    const loginBtn = document.getElementById('login');
+    const loginState = document.getElementById('loginState');
+    const formSec = document.getElementById('formSec');
+    const listSec = document.getElementById('listSec');
+
+    function verify(){
+      state.authed = (pwd.value === ADMIN_PASSWORD);
+      loginState.textContent = state.authed ? '✅ 已登录（本页仅本地校验）' : '❌ 口令不正确';
+      formSec.hidden = !state.authed; listSec.hidden = !state.authed;
+    }
+    loginBtn.addEventListener('click', verify);
+    pwd.addEventListener('keydown', e=>{ if(e.key==='Enter'){ verify(); } });
+
+    // ======== 本地数据：lm_spells ========
+    const KEY = 'lm_spells';
+    const readAll = ()=>{ try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ return [] } };
+    const writeAll = arr => localStorage.setItem(KEY, JSON.stringify(arr));
+
+    const list = document.getElementById('list');
+    function render(){
+      const arr = readAll();
+      list.innerHTML = '';
+      arr.forEach((s,i)=>{
+        const div = document.createElement('div');
+        div.className = 'list-item';
+        div.innerHTML = `<div style="display:flex;justify-content:space-between;gap:10px;align-items:center"><strong>${s.title||'(无标题)'}</strong><span class="muted mono">#${s.id}</span></div>
+        <div class="muted" style="margin-top:4px">创建：${new Date(s.createdAt).toLocaleString()}</div>
+        <details style="margin-top:6px"><summary>咒语</summary><pre class="mono" style="white-space:pre-wrap">${s.body||''}</pre></details>
+        <details style="margin-top:6px"><summary>解析</summary><div>${(s.analysis||'').replace(/\n/g,'<br>')}</div></details>
+        <div class="row" style="margin-top:8px">
+          <button class="btn" data-act="copy" data-id="${s.id}">复制咒语</button>
+          <button class="btn danger" data-act="del" data-id="${s.id}">删除</button>
+        </div>`;
+        list.appendChild(div);
+      });
+    }
+
+    // 保存 & 预览
+    const title = document.getElementById('title');
+    const body = document.getElementById('body');
+    const analysis = document.getElementById('analysis');
+    const saveBtn = document.getElementById('save');
+    const previewBtn = document.getElementById('preview');
+    const prev = document.getElementById('prev');
+    const prevBox = document.getElementById('prevBox');
+
+    saveBtn.addEventListener('click', ()=>{
+      const t = (title.value||'').trim();
+      const b = (body.value||'').trim();
+      const a = (analysis.value||'').trim();
+      if(!b){ alert('请填写咒语正文'); return }
+      const arr = readAll();
+      const id = Date.now().toString(36);
+      arr.unshift({ id, title: t, body: b, analysis: a, createdAt: Date.now() });
+      writeAll(arr); title.value=''; body.value=''; analysis.value='';
+      render(); alert('已保存到本地');
+    });
+
+    previewBtn.addEventListener('click', ()=>{
+      prevBox.innerHTML = `<strong>${(title.value||'(预览)')}</strong><hr>`+
+      `<div><em>咒语</em><pre class='mono' style='white-space:pre-wrap'>${(body.value||'')}</pre></div>`+
+      `<div style='margin-top:6px'><em>解析</em><div>${(analysis.value||'').replace(/\n/g,'<br>')}</div></div>`;
+      prev.showModal();
+    });
+
+    // 列表操作
+    list.addEventListener('click', async (e)=>{
+      const btn = e.target.closest('button'); if(!btn) return;
+      const id = btn.dataset.id; const act = btn.dataset.act; const arr = readAll();
+      if(act==='del'){
+        if(confirm('确认删除？')){ writeAll(arr.filter(s=>s.id!==id)); render(); }
+      } else if (act==='copy'){
+        const s = arr.find(x=>x.id===id); if(!s) return;
+        try{ await navigator.clipboard.writeText(s.body||''); alert('已复制咒语'); }catch(err){ alert('复制失败'); }
+      }
+    });
+
+    // 导出 / 导入
+    document.getElementById('exportBtn').addEventListener('click', ()=>{
+      const blob = new Blob([JSON.stringify(readAll(),null,2)], {type:'application/json'});
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'lm_spells.json'; a.click();
+    });
+    document.getElementById('importFile').addEventListener('change', (e)=>{
+      const f = e.target.files[0]; if(!f) return;
+      const reader = new FileReader();
+      reader.onload = ()=>{ try{ const arr = JSON.parse(reader.result||'[]'); if(Array.isArray(arr)){ writeAll(arr); render(); alert('已导入'); } }catch(err){ alert('文件格式不对'); } };
+      reader.readAsText(f);
+    });
+
+    // 初次渲染（未登录也可看已有条目，但无法修改）
+    render();
+
     // 年份
     document.getElementById('year').textContent = new Date().getFullYear();
-
-    // 复制
-    document.getElementById('copySpell').addEventListener('click', async ()=>{
-      const txt = document.getElementById('spellText').innerText.trim();
-      try{ await navigator.clipboard.writeText(txt); alert('已复制咒语与拉丁短句'); }catch(e){ alert('复制失败，请手动选择复制'); }
-    });
-
-    // 朗读（若浏览器支持 Web Speech API）
-    const focusBtn = document.getElementById('focusSpell');
-    focusBtn.addEventListener('click', ()=>{
-      const utt = new SpeechSynthesisUtterance();
-      utt.text = `将下面的部分拧到最紧，然后逆时针拧泵头。`;
-      utt.rate = 1.0; speechSynthesis.speak(utt);
-      const la = new SpeechSynthesisUtterance();
-      la.text = `Calor maris intra corpus, oculos claude in pace.`;
-      la.rate = 0.95; speechSynthesis.speak(la);
-    });
-
-    // ===== 本地描述：只针对第一条固定咒语 =====
-    const DESC_KEY = 'lm_spell1_desc';
-    const descInput = document.getElementById('descInput');
-    const descShow = document.getElementById('descShow');
-    const savedState = document.getElementById('savedState');
-
-    function loadDesc(){
-      const t = localStorage.getItem(DESC_KEY)||'';
-      descInput.value = t;
-      if(t){ descShow.style.display='block'; descShow.textContent = t; }
-    }
-    loadDesc();
-
-    document.getElementById('saveDesc').addEventListener('click', ()=>{
-      const t = descInput.value||'';
-      localStorage.setItem(DESC_KEY, t);
-      savedState.textContent = '（已保存到本地）';
-      if(t){ descShow.style.display='block'; descShow.textContent = t; } else { descShow.style.display='none'; }
-      setTimeout(()=> savedState.textContent='', 1500);
-    });
-
-    // ===== 渲染更多咒语：来自管理员页写入的 lm_spells =====
-    const KEY = 'lm_spells';
-    function readAll(){ try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){ return [] } }
-    const mount = document.getElementById('moreSpells');
-
-    function renderMore(){
-      const data = readAll();
-      if(!data.length){ mount.innerHTML = '（暂无更多；可前往 <a href="./admin.html">管理员入口</a> 添加）'; return; }
-      const frag = document.createDocumentFragment();
-      data.forEach(s=>{
-        const sec = document.createElement('section');
-        sec.className = 'card'; sec.style.margin = '10px 0';
-        sec.innerHTML = `<h4 style="margin:0 0 6px;font-size:15px">${s.title||'未命名咒语'}</h4>
-        <pre class="mono block" style="white-space:pre-wrap">${(s.body||'')}</pre>
-        ${s.analysis? `<details style="margin-top:6px"><summary class="muted">解析</summary><div class="block" style="margin-top:6px">${(s.analysis||'').replace(/\n/g,'<br>')}</div></details>` : ''}`;
-        frag.appendChild(sec);
-      });
-      mount.innerHTML=''; mount.appendChild(frag);
-    }
-    renderMore();
   </script>
 </body>
 </html>
