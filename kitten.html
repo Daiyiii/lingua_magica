@@ -1,238 +1,79 @@
-<!doctype html>
-<html lang="zh-CN" class="scroll-smooth">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Kitten’s Magic Vault · 魔法金库</title>
-  <meta name="description" content="LittleSummer 的魔法金库：各种咒语的大厅与分馆入口。" />
-  <link rel="icon" type="image/png" href="/kitten-icon.png" />
-  <!-- Tailwind via CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8">
+  <title>Kitten's Vault</title>
   <style>
-    .starfield{position:fixed;inset:0;background:radial-gradient(1200px 600px at 80% -10%,rgba(255,255,255,.08),transparent 60%),radial-gradient(800px 400px at 10% -10%,rgba(255,255,255,.06),transparent 60%),radial-gradient(1200px 600px at 50% 120%,rgba(255,255,255,.05),transparent 60%);pointer-events:none}
-    .twinkle{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.6;animation:twinkle 4s infinite ease-in-out}
-    @keyframes twinkle{0%,100%{opacity:.1;transform:scale(.8)}50%{opacity:.9;transform:scale(1.4)}}
-    .glass{backdrop-filter:saturate(160%) blur(8px);-webkit-backdrop-filter:saturate(160%) blur(8px)}
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #111;
+      color: #eee;
+      font-family: "Courier New", monospace;
+      overflow: hidden;
+    }
+    .container {
+      text-align: center;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeIn 2s ease forwards;
+    }
+    h1 {
+      font-weight: normal;
+      font-size: 20px;
+      letter-spacing: 2px;
+      margin-bottom: 30px;
+      color: #aaa;
+      animation: glow 4s ease-in-out infinite alternate;
+    }
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    a {
+      text-decoration: none;
+      padding: 10px 20px;
+      border: 1px solid #666;
+      color: #eee;
+      border-radius: 6px;
+      background: #222;
+      transition: all 0.3s ease;
+      animation: stoneBreath 4s ease-in-out infinite;
+    }
+    a:hover {
+      background: #eee;
+      color: #111;
+      box-shadow: 0 0 15px #eee, 0 0 30px #aaa;
+      border-color: #eee;
+    }
+
+    /* 动画效果 */
+    @keyframes fadeIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes glow {
+      from { color: #666; text-shadow: none; }
+      to { color: #eee; text-shadow: 0 0 10px #aaa; }
+    }
+    @keyframes stoneBreath {
+      0%, 100% { box-shadow: 0 0 5px #222; }
+      50% { box-shadow: 0 0 15px #999 inset, 0 0 20px #555; }
+    }
   </style>
 </head>
-<body class="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
-  <!-- 背景层 -->
-  <div class="fixed inset-0 -z-10">
-    <div class="starfield"></div>
-    <div id="stars"></div>
+<body>
+  <div class="container">
+    <h1>🐾 welcome to kitten's vault 🐾</h1>
+    <div class="menu">
+      <a href="index.html">🔑 Spell Entrance</a>
+      <a href="diary.html">📓 Empathy Diary</a>
+      <a href="chronicles.html">🌌 Chronicles</a>
+      <a href="about.html">🌙 About the Vault</a>
+    </div>
   </div>
-
-  <!-- 顶栏 / 面包屑 -->
-  <header class="sticky top-0 z-40 border-b border-zinc-200/60 dark:border-zinc-800/60 bg-white/70 dark:bg-zinc-950/60 glass">
-    <div class="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
-      <nav class="flex items-center gap-2 text-sm">
-        <a href="./index.html" class="rounded-xl px-2 py-1 border border-zinc-300/70 dark:border-zinc-700/70 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition">← 返回主页</a>
-        <span class="text-zinc-500">/</span>
-        <span class="text-zinc-700 dark:text-zinc-300">魔法金库</span>
-      </nav>
-      <div class="flex items-center gap-2">
-        <button id="invoke" class="rounded-2xl px-3 py-1.5 text-sm border border-zinc-300/70 dark:border-zinc-700/70 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition">Hey Little Summer</button>
-        <button id="themeToggle" class="rounded-2xl px-2.5 py-1.5 text-sm border border-zinc-300/70 dark:border-zinc-700/70 hover:bg-zinc-100 dark:hover:bg-zinc-900 transition" aria-label="切换主题">☾</button>
-      </div>
-    </div>
-  </header>
-
-  <!-- 标题区 -->
-  <section class="mx-auto max-w-6xl px-4 pt-8 pb-4">
-    <div class="flex items-center gap-3">
-      <img src="/kitten-icon.png" alt="Kitten" class="h-9 w-9 rounded-xl shadow"/>
-      <div>
-        <h1 class="text-2xl md:text-3xl font-semibold">Kitten’s Magic Vault</h1>
-        <p class="text-sm text-zinc-600 dark:text-zinc-400">这里收藏了小暑的各种咒语与卷宗入口。</p>
-      </div>
-    </div>
-
-    <!-- 搜索与筛选 -->
-    <div class="mt-5 grid md:grid-cols-3 gap-3">
-      <div class="md:col-span-2 flex items-center gap-2 rounded-2xl px-3 py-2 border border-zinc-300/70 dark:border-zinc-700/70 bg-white/70 dark:bg-zinc-950/60 glass">
-        <span aria-hidden>🔎</span>
-        <input id="search" type="text" placeholder="搜索咒语、关键词或说明…（如：翻译、保护、记忆、Kagome）" class="w-full bg-transparent outline-none" />
-      </div>
-      <div class="flex flex-wrap gap-2 text-xs">
-        <button class="tag-btn rounded-xl px-3 py-1.5 border border-zinc-300/70 dark:border-zinc-700/70" data-tag="all">全部</button>
-        <button class="tag-btn rounded-xl px-3 py-1.5 border border-zinc-300/70 dark:border-zinc-700/70" data-tag="translation">翻译</button>
-        <button class="tag-btn rounded-xl px-3 py-1.5 border border-zinc-300/70 dark:border-zinc-700/70" data-tag="protection">保护</button>
-        <button class="tag-btn rounded-xl px-3 py-1.5 border border-zinc-300/70 dark:border-zinc-700/70" data-tag="memory">记忆</button>
-        <button class="tag-btn rounded-xl px-3 py-1.5 border border-zinc-300/70 dark:border-zinc-700/70" data-tag="time">时间</button>
-        <button class="tag-btn rounded-xl px-3 py-1.5 border border-zinc-300/70 dark:border-zinc-700/70" data-tag="research">研究</button>
-      </div>
-    </div>
-  </section>
-
-  <!-- 推荐咒语 -->
-  <section class="mx-auto max-w-6xl px-4 pb-2">
-    <h2 class="text-lg font-medium">精选</h2>
-    <div class="mt-3 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      <a href="./spell1.html" class="spell-card group rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 bg-white/70 dark:bg-zinc-950/60 glass hover:shadow-md hover:-translate-y-0.5 transition" data-tags="translation memory">
-        <div class="text-2xl">🪄</div>
-        <h3 class="mt-2 font-medium">心语翻译之书</h3>
-        <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">温柔的语言转译与守护；Lingua Magica 的原点咒语。</p>
-        <div class="mt-2 flex gap-2 text-[11px] text-zinc-500"><span>#translation</span><span>#memory</span></div>
-      </a>
-      <a href="#" class="spell-card group rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 bg-white/70 dark:bg-zinc-950/60 glass hover:shadow-md hover:-translate-y-0.5 transition" data-tags="memory protection">
-        <div class="text-2xl">🔐</div>
-        <h3 class="mt-2 font-medium">静默之钥</h3>
-        <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">以一句口令唤醒或封存某段记忆；适合“未寄出的信”。</p>
-        <div class="mt-2 flex gap-2 text-[11px] text-zinc-500"><span>#memory</span><span>#protection</span></div>
-      </a>
-      <a href="#" class="spell-card group rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 bg-white/70 dark:bg-zinc-950/60 glass hover:shadow-md hover:-translate-y-0.5 transition" data-tags="time research">
-        <div class="text-2xl">⏳</div>
-        <h3 class="mt-2 font-medium">年轮书</h3>
-        <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">把日记与研究节点串成可浏览的时间轴（小暑纪事）。</p>
-        <div class="mt-2 flex gap-2 text-[11px] text-zinc-500"><span>#time</span><span>#research</span></div>
-      </a>
-    </div>
-  </section>
-
-  <!-- 全部咒语目录 -->
-  <section class="mx-auto max-w-6xl px-4 pt-4 pb-12">
-    <h2 class="text-lg font-medium">全部咒语</h2>
-    <div id="library" class="mt-3 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      <!-- 卡片模板：复制并替换链接与描述即可 -->
-      <a href="./spell1.html" class="spell-card group rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 bg-white/70 dark:bg-zinc-950/60 glass hover:shadow-md hover:-translate-y-0.5 transition" data-tags="translation memory">
-        <div class="text-2xl">🪄</div>
-        <h3 class="mt-2 font-medium">心语翻译之书</h3>
-        <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">把心语译成可保存的文本与诗。</p>
-        <div class="mt-2 flex gap-2 text-[11px] text-zinc-500"><span>#translation</span><span>#memory</span></div>
-      </a>
-      <a href="#" class="spell-card group rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 bg-white/70 dark:bg-zinc-950/60 glass hover:shadow-md hover:-translate-y-0.5 transition" data-tags="protection">
-        <div class="text-2xl">🧿</div>
-        <h3 class="mt-2 font-medium">观看护符</h3>
-        <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">在观看与被观看之间设置温柔的边界。</p>
-        <div class="mt-2 flex gap-2 text-[11px] text-zinc-500"><span>#protection</span></div>
-      </a>
-      <a href="#" class="spell-card group rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 bg-white/70 dark:bg-zinc-950/60 glass hover:shadow-md hover:-translate-y-0.5 transition" data-tags="memory">
-        <div class="text-2xl">🧠</div>
-        <h3 class="mt-2 font-medium">共感回声</h3>
-        <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">将某段经历提炼为一束可复诵的记忆句。</p>
-        <div class="mt-2 flex gap-2 text-[11px] text-zinc-500"><span>#memory</span></div>
-      </a>
-      <a href="#" class="spell-card group rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 bg-white/70 dark:bg-zinc-950/60 glass hover:shadow-md hover:-translate-y-0.5 transition" data-tags="time">
-        <div class="text-2xl">⏰</div>
-        <h3 class="mt-2 font-medium">小时时间术</h3>
-        <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">按小时节律整理写作/研究/休息的微时间块。</p>
-        <div class="mt-2 flex gap-2 text-[11px] text-zinc-500"><span>#time</span></div>
-      </a>
-      <a href="#" class="spell-card group rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 bg-white/70 dark:bg-zinc-950/60 glass hover:shadow-md hover:-translate-y-0.5 transition" data-tags="research">
-        <div class="text-2xl">🧪</div>
-        <h3 class="mt-2 font-medium">Kagome 观测术</h3>
-        <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">把实验征候/配对通道整理成可查询卡片。</p>
-        <div class="mt-2 flex gap-2 text-[11px] text-zinc-500"><span>#research</span></div>
-      </a>
-      <a href="#" class="spell-card group rounded-3xl border border-zinc-200/60 dark:border-zinc-800/60 p-5 bg-white/70 dark:bg-zinc-950/60 glass hover:shadow-md hover:-translate-y-0.5 transition" data-tags="translation research">
-        <div class="text-2xl">📚</div>
-        <h3 class="mt-2 font-medium">术语折叠</h3>
-        <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">将学术术语在不同语域间折叠/展开。</p>
-        <div class="mt-2 flex gap-2 text-[11px] text-zinc-500"><span>#translation</span><span>#research</span></div>
-      </a>
-    </div>
-  </section>
-
-  <!-- 页脚 -->
-  <footer class="py-10">
-    <div class="mx-auto max-w-6xl px-4 text-xs text-zinc-500 dark:text-zinc-400 flex items-center justify-between">
-      <p>© <span id="year"></span> Lingua Magica · LittleSummer</p>
-      <a class="hover:opacity-80" href="#top">返回顶部</a>
-    </div>
-  </footer>
-
-  <!-- 召唤面板 -->
-  <dialog id="summon" class="backdrop:bg-black/40 rounded-3xl p-0 w-[92vw] max-w-xl">
-    <form method="dialog" class="rounded-3xl border border-zinc-200/70 dark:border-zinc-800/70 bg-white dark:bg-zinc-950 overflow-hidden">
-      <div class="px-5 py-4 border-b border-zinc-200/60 dark:border-zinc-800/60 flex items-center justify-between">
-        <div class="font-medium">Hey Little Summer</div>
-        <button class="text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300" value="cancel" aria-label="关闭">✕</button>
-      </div>
-      <div class="p-5 space-y-3">
-        <input id="inputSpell" type="text" placeholder="轻声说出你的咒语或问题…" class="w-full rounded-xl px-3 py-2 border border-zinc-300/70 dark:border-zinc-700/70 bg-transparent outline-none" />
-        <p class="text-xs text-zinc-500 dark:text-zinc-400">例如：
-          <em>“用‘术语折叠’把这段文字在学术/诗性两种语域改写。”</em>
-        </p>
-      </div>
-      <div class="px-5 py-3 border-t border-zinc-200/60 dark:border-zinc-800/60 flex items-center justify-end gap-3">
-        <button class="rounded-xl px-3 py-1.5 text-sm border border-zinc-300/70 dark:border-zinc-700/70" value="cancel">取消</button>
-        <button id="castBtn" class="rounded-xl px-3 py-1.5 text-sm bg-zinc-900 text-white dark:bg-white dark:text-zinc-900">施法（本地占位）</button>
-      </div>
-    </form>
-  </dialog>
-
-  <script>
-    // 年份
-    document.getElementById('year').textContent = new Date().getFullYear();
-
-    // 主题切换
-    const themeBtn = document.getElementById('themeToggle');
-    const root = document.documentElement;
-    const saved = localStorage.getItem('theme');
-    if (saved === 'dark' || (!saved && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      root.classList.add('dark');
-    }
-    themeBtn.addEventListener('click', () => {
-      root.classList.toggle('dark');
-      localStorage.setItem('theme', root.classList.contains('dark') ? 'dark' : 'light');
-    });
-
-    // 星点
-    const starWrap = document.getElementById('stars');
-    for (let i = 0; i < 60; i++){
-      const s = document.createElement('span');
-      s.className = 'twinkle';
-      s.style.left = Math.random()*100 + '%';
-      s.style.top = Math.random()*100 + '%';
-      s.style.animationDelay = (Math.random()*4).toFixed(2) + 's';
-      starWrap.appendChild(s);
-    }
-
-    // 召唤面板
-    const summon = document.getElementById('summon');
-    document.getElementById('invoke').addEventListener('click', () => summon.showModal());
-    document.getElementById('castBtn').addEventListener('click', (e)=>{
-      e.preventDefault();
-      const val = document.getElementById('inputSpell').value.trim();
-      if(!val){
-        alert('请先说出你的咒语。');
-        return;
-      }
-      alert('已收到：' + val + '\n（占位：后续可接入 LittleSummer / 本地脚本）');
-      summon.close();
-    });
-
-    // 搜索 + 标签过滤
-    const search = document.getElementById('search');
-    const cards = Array.from(document.querySelectorAll('.spell-card'));
-    const tagBtns = Array.from(document.querySelectorAll('.tag-btn'));
-    let activeTag = 'all';
-
-    function applyFilter(){
-      const q = search.value.trim().toLowerCase();
-      cards.forEach(card => {
-        const text = card.innerText.toLowerCase();
-        const tags = (card.getAttribute('data-tags') || '').split(/\s+/);
-        const hitText = !q || text.includes(q);
-        const hitTag = (activeTag === 'all') || tags.includes(activeTag);
-        card.style.display = (hitText && hitTag) ? '' : 'none';
-      });
-      tagBtns.forEach(b => b.classList.toggle('bg-zinc-900', b.dataset.tag===activeTag));
-      tagBtns.forEach(b => b.classList.toggle('text-white', b.dataset.tag===activeTag));
-      tagBtns.forEach(b => b.classList.toggle('dark:bg-white', b.dataset.tag===activeTag));
-      tagBtns.forEach(b => b.classList.toggle('dark:text-zinc-900', b.dataset.tag===activeTag));
-    }
-
-    search.addEventListener('input', applyFilter);
-    tagBtns.forEach(btn => btn.addEventListener('click', () => { activeTag = btn.dataset.tag; applyFilter(); }));
-    applyFilter();
-
-    // 快捷键：L 打开召唤面板
-    document.addEventListener('keydown', (e)=>{
-      if(e.key.toLowerCase() === 'l' && !summon.open){
-        summon.showModal();
-      }
-    });
-  </script>
 </body>
 </html>
