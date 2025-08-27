@@ -69,19 +69,10 @@
       border-top: 1px solid #444;
       padding-top: 20px;
     }
-    .spell p {
-      margin: 8px 0;
-      line-height: 1.5em;
-    }
-    .spell .incantation {
-      font-style: italic;
-      color: #9cf;
-    }
-    .spell .translation {
-      color: #ccc;
-    }
+    .spell p { margin: 8px 0; line-height: 1.5em; }
+    .spell .incantation { font-style: italic; color: #9cf; }
+    .spell .translation { color: #ccc; }
 
-    /* 动画效果 */
     @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
     @keyframes blink { 0%,100% { border-color: transparent; } 50% { border-color: #eee; } }
     @keyframes breathing { 0%,100% { box-shadow: 0 0 5px #333; } 50% { box-shadow: 0 0 15px #777; } }
@@ -131,6 +122,16 @@
     document.getElementById("spellId").addEventListener("keypress", function(e) {
       if (e.key === "Enter") loadSpell();
     });
+
+    // 页面加载时，检查 URL 参数
+    window.onload = function() {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("id");
+      if (id) {
+        document.getElementById("spellId").value = id;
+        loadSpell();
+      }
+    };
   </script>
 </body>
 </html>
