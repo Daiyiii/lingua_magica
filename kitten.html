@@ -52,17 +52,9 @@
     }
 
     /* 动画效果 */
-    @keyframes fadeIn {
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes glow {
-      from { color: #666; text-shadow: none; }
-      to { color: #eee; text-shadow: 0 0 10px #aaa; }
-    }
-    @keyframes stoneBreath {
-      0%, 100% { box-shadow: 0 0 5px #222; }
-      50% { box-shadow: 0 0 15px #999 inset, 0 0 20px #555; }
-    }
+    @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
+    @keyframes glow { from { color: #666; text-shadow: none; } to { color: #eee; text-shadow: 0 0 10px #aaa; } }
+    @keyframes stoneBreath { 0%,100% { box-shadow: 0 0 5px #222; } 50% { box-shadow: 0 0 15px #999 inset, 0 0 20px #555; } }
   </style>
 </head>
 <body>
@@ -70,6 +62,8 @@
     <h1>🐾 welcome to kitten's vault 🐾</h1>
     <div class="menu">
       <a href="index.html">🔑 Spell Entrance</a>
+      <a href="spell_viewer.html">🔮 Spell Viewer</a>
+      <a href="spell_editor.html">🪄 Spell Editor</a>
       <a href="diary.html">📓 Empathy Diary</a>
       <a href="chronicles.html">🌌 Chronicles</a>
       <a href="about.html">🌙 About the Vault</a>
