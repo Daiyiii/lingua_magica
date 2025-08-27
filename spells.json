@@ -1,9 +1,10 @@
 [
   {
-    "id": "pump-ritual-1",
-    "title": "沐浴露瓶盖开启术",
-    "body": "将下面的部分拧到最紧，然后逆时针拧泵头。\nCalor maris intra corpus, oculos claude in pace.",
-    "analysis": "1) 多数按压泵首启处于锁定；需先顺时针拧紧下部外环。\n2) 再逆时针旋转泵头，解除运输锁。\n3) 解锁后上下按压抽液。\n提示：若无效，确认外环已拧紧；或去除一次性限位扣。",
-    "createdAt": "2025-08-22T00:00:00.000Z"
+    "id": "001",
+    "time": "2025.6.7",
+    "title": "打开沐浴露的魔法",
+    "instructions": "将最下面的部分拧到最紧，然后逆时针拧泵头",
+    "incantation": "Calor maris intra corpus, oculos claude i pace",
+    "translation": "让海的热度流入身体，在平静中闭上双眼"
   }
 ]
