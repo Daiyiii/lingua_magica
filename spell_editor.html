@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Spell Editor</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      background: #111;
+      color: #eee;
+      font-family: "Courier New", monospace;
+    }
+    h1 {
+      text-align: center;
+      color: #aaa;
+      margin-bottom: 30px;
+      animation: glow 4s ease-in-out infinite alternate;
+    }
+    form {
+      max-width: 600px;
+      margin: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    label {
+      font-size: 14px;
+      color: #ccc;
+    }
+    input, textarea {
+      background: transparent;
+      border: 1px solid #666;
+      color: #eee;
+      padding: 6px;
+      font-size: 14px;
+      border-radius: 4px;
+      outline: none;
+    }
+    textarea {
+      resize: vertical;
+    }
+    button {
+      padding: 8px 14px;
+      background: #222;
+      border: 1px solid #666;
+      color: #eee;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.3s;
+      animation: stoneBreath 4s ease-in-out infinite;
+    }
+    button:hover {
+      background: #eee;
+      color: #111;
+      box-shadow: 0 0 15px #eee, 0 0 30px #aaa;
+    }
+    pre {
+      margin-top: 30px;
+      background: #222;
+      padding: 20px;
+      border-radius: 6px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      border: 1px solid #666;
+    }
+    @keyframes glow {
+      from { color: #666; text-shadow: none; }
+      to { color: #eee; text-shadow: 0 0 10px #aaa; }
+    }
+    @keyframes stoneBreath {
+      0%, 100% { box-shadow: 0 0 5px #222; }
+      50% { box-shadow: 0 0 15px #999 inset, 0 0 20px #555; }
+    }
+  </style>
+</head>
+<body>
+  <h1>🪄 Spell Editor 🪄</h1>
+  <form id="spellForm">
+    <label>ID <input type="text" id="id" placeholder="e.g. 002"></label>
+    <label>Time <input type="text" id="time" placeholder="e.g. 2025.6.8"></label>
+    <label>Title <input type="text" id="title" placeholder="咒语标题"></label>
+    <label>Instructions <textarea id="instructions" rows="2" placeholder="施法动作..."></textarea></label>
+    <label>Incantation <textarea id="incantation" rows="2" placeholder="咒语原文..."></textarea></label>
+    <label>Translation <textarea id="translation" rows="2" placeholder="中文解释..."></textarea></label>
+    <button type="button" onclick="generateJSON()">Generate JSON</button>
+  </form>
+
+  <pre id="output"></pre>
+
+  <script>
+    function generateJSON() {
+      const spell = {
+        id: document.getElementById("id").value.trim(),
+        time: document.getElementById("time").value.trim(),
+        title: document.getElementById("title").value.trim(),
+        instructions: document.getElementById("instructions").value.trim(),
+        incantation: document.getElementById("incantation").value.trim(),
+        translation: document.getElementById("translation").value.trim()
+      };
+
+      document.getElementById("output").textContent = JSON.stringify(spell, null, 2);
+    }
+  </script>
+</body>
+</html>
