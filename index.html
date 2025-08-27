@@ -71,11 +71,8 @@
       transition: opacity 2s ease;
       min-height: 20px;
     }
-    #secretMessage.show {
-      opacity: 1;
-    }
+    #secretMessage.show { opacity: 1; }
 
-    /* 动画效果 */
     @keyframes fadeIn { to { opacity: 1; transform: translateY(0); } }
     @keyframes blink { 0%,100% { border-color: transparent; } 50% { border-color: #eee; } }
     @keyframes breathing { 0%,100% { box-shadow: 0 0 5px #333; } 50% { box-shadow: 0 0 15px #777; } }
@@ -86,7 +83,7 @@
 <body>
   <div class="vault">
     <h1>whisper your spell...</h1>
-    <input id="magicInput" type="text" placeholder="e.g. 007 / abracadabra / kitten">
+    <input id="magicInput" type="text" placeholder="e.g. 001 / abracadabra / kitten">
     <br>
     <button onclick="enterVault()">Enter</button>
     <div id="secretMessage"></div>
@@ -129,13 +126,11 @@
         secret.textContent = msg;
         secret.classList.add("show");
       } else if (value === "kitten" || value === "vault") {
-        // 跳到 kitten.html
         window.location.href = "kitten.html";
       } else if (/^\d+$/.test(value)) {
-        // 数字入口
-        window.location.href = value + ".html";
+        // 数字跳转到 spell_viewer.html
+        window.location.href = "spell_viewer.html?id=" + value;
       } else {
-        // 一般咒语入口
         window.location.href = "spell_" + value + ".html";
       }
     }
